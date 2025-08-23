@@ -31,12 +31,12 @@ export default async function ProductsPage() {
               <li key={p.id} className="border rounded overflow-hidden bg-white">
                 <img src={src} alt={p.name} className="w-full h-40 object-cover" />
                 <div className="p-3">
-                  <h3 className="font-semibold truncate">{p.name}</h3>
+                  <h3 className="font-semibold truncate text-blue-950">{p.name}</h3>
                   <div className="mt-2 flex items-center justify-between">
-                    <p className="font-medium">${p.price.toFixed(2)}</p>
+                    <p className="font-medium text-blue-950">${p.price.toFixed(2)}</p>
                     <Link
                       href={`/products/${p.id}`}
-                      className="text-sm underline"
+                      className="text-sm underline text-blue-950"
                     >
                       Details
                     </Link>

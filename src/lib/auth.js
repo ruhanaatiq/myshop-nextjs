@@ -5,12 +5,10 @@ export const authOptions = {
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
   providers: [
-    // Social login (free)
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
-    // Demo credentials (optional)
     Credentials({
       name: "Credentials",
       credentials: { email: { type: "email" }, password: { type: "password" } },
@@ -24,7 +22,28 @@ export const authOptions = {
   ],
   callbacks: {
     async redirect({ url, baseUrl }) {
-      return url?.startsWith("/") ? `${baseUrl}${url}` : `${baseUrl}/products`;
+      try {
+        // Normalize to absolute against baseUrl
+        const u = new URL(url, baseUrl);
+
+        // Same-origin only
+        if (u.origin !== baseUrl) return baseUrl;
+
+        // Never redirect back to auth endpoints or /login (prevents loops)
+        if (
+          u.pathname.startsWith("/login") ||
+          u.pathname.startsWith("/api/auth")
+        ) {
+          // send to a safe default (home or your products page)
+          return `${baseUrl}/products`;
+        }
+
+        // allow clean, same-origin targets
+        return u.pathname + u.search + u.hash;
+      } catch {
+        // if url is malformed, go to a safe default
+        return `${baseUrl}/products`;
+      }
     },
   },
 };

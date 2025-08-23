@@ -5,19 +5,20 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
     await dbConnect();
-    const docs = await Product.find().sort({ createdAt: -1 }).lean();
+    const products = await Product.find().sort({ createdAt: -1 }).lean();
     return NextResponse.json(
-      docs.map(d => ({
-        id: d._id.toString(),
-        name: d.name,
-        brand: d.brand ?? null,
-        description: d.description,
-        price: d.price,
-        thumbnail: d.thumbnail ?? null,  // include for list cards
+      products.map(p => ({
+        id: p._id.toString(),
+        name: p.name,
+        brand: p.brand ?? null,
+        description: p.description ?? "",
+        price: p.price,
+        thumbnail: p.thumbnail ?? null,
       }))
     );
   } catch (e) {
@@ -27,39 +28,46 @@ export async function GET() {
 }
 
 export async function POST(req) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  let payload;
-  try { payload = await req.json(); } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
-
-  let { name, brand, description, price, category = "gadget", thumbnail = null, images = [], sku } = payload || {};
-  if (!name || !brand || !description || typeof price !== "number") {
-    return NextResponse.json({ error: "name, brand, description and numeric price are required" }, { status: 400 });
-  }
-  if (typeof images === "string") {
-    images = images.split(",").map(s => s.trim()).filter(Boolean);
-  }
-  if (!Array.isArray(images)) images = [];
-
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     await dbConnect();
+    const body = await req.json();
+
+    // Coerce/validate inputs
+    const name = (body.name || "").trim();
+    const price = Number(body.price);
+    if (!name) return NextResponse.json({ error: "Name is required" }, { status: 400 });
+    if (!Number.isFinite(price) || price < 0) {
+      return NextResponse.json({ error: "Price must be a valid number" }, { status: 400 });
+    }
+
+    // Accept images as array or comma-separated string
+    const images = Array.isArray(body.images)
+      ? body.images.map(String).map(s => s.trim()).filter(Boolean)
+      : (body.images ? String(body.images).split(",").map(s => s.trim()).filter(Boolean) : []);
+
+    // If your collection has a text index on `tags` that rejects arrays, keep it as string
+    let tags = null;
+    if (Array.isArray(body.tags)) tags = body.tags.join(" ");
+    else if (typeof body.tags === "string") tags = body.tags;
+
     const doc = await Product.create({
-      name, brand, description, price, category, thumbnail, images, sku,
-      createdById: session.user.id ?? session.user.email ?? null,
+      name,
+      brand: body.brand?.trim() || null,
+      description: body.description?.trim() || "",
+      price,
+      thumbnail: body.thumbnail?.trim() || null, // URL or data: URI is fine
+      images,
+      tags,
     });
 
-    return NextResponse.json(
-      { id: doc._id.toString(), name: doc.name, brand: doc.brand, description: doc.description, price: doc.price, thumbnail: doc.thumbnail },
-      { status: 201 }
-    );
-  } catch (e) {
-    console.error("POST /api/products failed:", e);
-    if (e?.code === 11000) return NextResponse.json({ error: "Duplicate SKU" }, { status: 409 });
-    if (e?.name === "ValidationError") {
-      const first = Object.values(e.errors)[0]?.message || "Validation error";
-      return NextResponse.json({ error: first }, { status: 400 });
-    }
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    return NextResponse.json({ id: doc._id.toString() }, { status: 201 });
+  } catch (err) {
+    console.error("POST /api/products failed:", err);
+    return NextResponse.json({ error: err?.message || "Server error" }, { status: 500 });
   }
 }

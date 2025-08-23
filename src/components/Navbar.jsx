@@ -1,45 +1,25 @@
-"use client";
+// src/components/Navbar.jsx (no "use client")
 import Link from "next/link";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
-export default function Navbar() {
-  const { data: session, status } = useSession();
-  const authed = status === "authenticated";
+export default async function Navbar() {
+  const session = await getServerSession(authOptions);
 
   return (
     <nav className="border-b">
       <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
         <Link href="/" className="font-semibold text-lg">MyShop</Link>
-
         <div className="flex items-center gap-4 text-sm">
           <Link href="/products" className="hover:underline">Products</Link>
-          {authed && (
-            <Link href="/dashboard/add-product" className="hover:underline">
-              Add Product
-            </Link>
-          )}
 
-          {status === "loading" ? (
-            <span className="opacity-70">…</span>
-          ) : authed ? (
+          {session ? (
             <>
-              <span className="hidden sm:inline">
-                Hi, {session?.user?.name || session?.user?.email}
-              </span>
-              <button
-                onClick={() => signOut({ callbackUrl: "/" })}
-                className="px-3 py-1 border rounded"
-              >
-                Logout
-              </button>
+              <Link href="/dashboard" className="hover:underline">Dashboard</Link>
+              <Link href="/api/auth/signout" className="hover:underline">Logout</Link>
             </>
           ) : (
-            <button
-              onClick={() => signIn(undefined, { callbackUrl: "/products" })}
-              className="px-3 py-1 border rounded"
-            >
-              Login
-            </button>
+            <Link href="/login" className="hover:underline">Login</Link>
           )}
         </div>
       </div>

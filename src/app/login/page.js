@@ -60,7 +60,7 @@ function LoginInner() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         <div className="flex justify-center">
           <Image
-            src="/assets/images/login/login.svg"
+            src="/login.jpg"
             height={540}
             width={540}
             alt="Login illustration"

@@ -1,13 +1,14 @@
+// src/app/dashboard/add-product/page.js
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth"; // v4 style options
+import { authOptions } from "@/lib/auth"; // <-- v4 options object
 import { redirect } from "next/navigation";
 import AddProductForm from "@/components/AddProductForm";
 
-export const dynamic = "force-dynamic"; // render fresh
+export const dynamic = "force-dynamic";
 
 export default async function AddProductPage() {
-  const session = await getServerSession(authOptions);
-  if (!session) {
+  const session = await getServerSession(authOptions); // v4 way
+  if (!session?.user) {
     redirect("/login?callbackUrl=/dashboard/add-product");
   }
 

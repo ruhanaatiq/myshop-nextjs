@@ -29,6 +29,5 @@ export function absoluteUrl(path = "/", base = getBaseUrl()) {
     return new URL(path, base).toString(); // works with relative or absolute paths
   } catch {
     // As a last resort, return base
-    return base + (path.startsWith("/") ? path : "/");
-  }
+return base + (path.startsWith("/") ? path : `/${path}`);  }
 }

@@ -42,7 +42,7 @@ export default function HeroSlider({ interval = 4000 }) {
         {slides.map((s, i) => (
           <div key={i} className="relative w-full shrink-0 h-full">
             <Image src={s.src} alt={s.h1} fill className="object-cover" priority={i === 0} />
-            <div className="absolute inset-0 bg-black/40" />
+            <div className="absolute inset-0 /40" />
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4">
               <h2 className="text-3xl md:text-5xl font-bold mb-3">{s.h1}</h2>
               <p className="text-base md:text-lg mb-6 opacity-90">{s.p}</p>

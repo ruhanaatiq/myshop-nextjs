@@ -1,8 +1,9 @@
+// src/app/api/products/route.js
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongoose";
 import Product from "@/models/Product";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { authOptions } from "@/lib/auth"; // <-- v4 options
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,7 +13,7 @@ export async function GET() {
     await dbConnect();
     const products = await Product.find().sort({ createdAt: -1 }).lean();
     return NextResponse.json(
-      products.map(p => ({
+      products.map((p) => ({
         id: p._id.toString(),
         name: p.name,
         brand: p.brand ?? null,
@@ -29,6 +30,7 @@ export async function GET() {
 
 export async function POST(req) {
   try {
+    // v4 session check
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -37,7 +39,6 @@ export async function POST(req) {
     await dbConnect();
     const body = await req.json();
 
-    // Coerce/validate inputs
     const name = (body.name || "").trim();
     const price = Number(body.price);
     if (!name) return NextResponse.json({ error: "Name is required" }, { status: 400 });
@@ -45,12 +46,12 @@ export async function POST(req) {
       return NextResponse.json({ error: "Price must be a valid number" }, { status: 400 });
     }
 
-    // Accept images as array or comma-separated string
     const images = Array.isArray(body.images)
-      ? body.images.map(String).map(s => s.trim()).filter(Boolean)
-      : (body.images ? String(body.images).split(",").map(s => s.trim()).filter(Boolean) : []);
+      ? body.images.map(String).map((s) => s.trim()).filter(Boolean)
+      : body.images
+      ? String(body.images).split(",").map((s) => s.trim()).filter(Boolean)
+      : [];
 
-    // If your collection has a text index on `tags` that rejects arrays, keep it as string
     let tags = null;
     if (Array.isArray(body.tags)) tags = body.tags.join(" ");
     else if (typeof body.tags === "string") tags = body.tags;
@@ -60,7 +61,7 @@ export async function POST(req) {
       brand: body.brand?.trim() || null,
       description: body.description?.trim() || "",
       price,
-      thumbnail: body.thumbnail?.trim() || null, // URL or data: URI is fine
+      thumbnail: body.thumbnail?.trim() || null,
       images,
       tags,
     });

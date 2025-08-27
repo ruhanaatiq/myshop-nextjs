@@ -1,39 +1,24 @@
 "use client";
+import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
+const THEMES = ["light", "dark", "cupcake"]; // must match tailwind.config
+
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState("light");
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null; // avoid hydration mismatch
 
-  useEffect(() => {
-    const saved = typeof window !== "undefined"
-      ? localStorage.getItem("theme")
-      : null;
-    const initial = saved || "light";
-    setTheme(initial);
-    document.documentElement.setAttribute("data-theme", initial);
-  }, []);
-
-  useEffect(() => {
-    const onStorage = (e) => {
-      if (e.key === "theme" && e.newValue) {
-        setTheme(e.newValue);
-        document.documentElement.setAttribute("data-theme", e.newValue);
-      }
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, []);
-
-  const toggle = () => {
-    const next = theme === "light" ? "dark" : "light";
-    setTheme(next);
-    localStorage.setItem("theme", next);
-    document.documentElement.setAttribute("data-theme", next);
-  };
+  const toggle = () =>
+    setTheme(resolvedTheme === "dark" ? "light" : "dark");
 
   return (
-    <button className="btn btn-sm" onClick={toggle}>
-      {theme === "light" ? "🌙 Dark" : "☀️ Light"}
-    </button>
+    <div className="join">
+      <button className="btn btn-sm join-item" onClick={toggle}>
+        {resolvedTheme === "dark" ? "☀️ Light" : "🌙 Dark"}
+      </button>
+      
+    </div>
   );
 }

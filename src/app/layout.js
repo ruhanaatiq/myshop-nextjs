@@ -15,19 +15,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" data-theme="light" suppressHydrationWarning>
-      <head>
-        {/* Set saved theme BEFORE any UI renders */}
-        <Script id="theme-init" strategy="beforeInteractive">
-          {`
-            try {
-              var t = localStorage.getItem('theme') || 'light';
-              document.documentElement.setAttribute('data-theme', t);
-            } catch (e) {}
-          `}
-        </Script>
-      </head>
-
+    <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen flex flex-col bg-base-100 text-base-content">
         <Providers>
           <Navbar />

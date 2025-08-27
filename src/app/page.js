@@ -14,7 +14,7 @@ export default function HomePage() {
           Browse our products, and after logging in, manage your own.
         </p>
         <div className="flex gap-3">
-          <Link href="/products" className="text-white border-2 px-2">
+          <Link href="/products" className="text-black border-2 border-black px-2 py-2">
             View Products
           </Link>
         

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image"; 
 
 function useInViewOnce(options = { threshold: 0.3 }) {
   const ref = useRef(null);
@@ -50,25 +51,47 @@ export default function StatsStrip() {
   return (
     <section className="py-16 bg-base-200 border-t border-base-300">
       <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+
+        {/* Products */}
         <div className="rounded-xl bg-base-100 border border-base-300 p-6 shadow-sm hover:-translate-y-1 transition">
           <div className="mx-auto mb-2 h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center">
-            <span className="text-primary text-lg">🛒</span>
+            <Image 
+              src="/digital-nomad.png" 
+              alt="Products"
+              width={28}
+              height={28}
+              priority
+            />
           </div>
           <CountUp to={500} suffix="+" />
           <p className="text-base-content/70">Products Available</p>
         </div>
 
+        {/* Happy Customers */}
         <div className="rounded-xl bg-base-100 border border-base-300 p-6 shadow-sm hover:-translate-y-1 transition">
           <div className="mx-auto mb-2 h-10 w-10 rounded-full bg-secondary/15 flex items-center justify-center">
-            <span className="text-secondary text-lg">🎉</span>
+            <Image 
+              src="/customer-satisfaction.png"  
+              alt="Happy Customers"
+              width={28}
+              height={28}
+              priority
+            />
           </div>
           <CountUp to={1200} suffix="+" />
           <p className="text-base-content/70">Happy Customers</p>
         </div>
 
+        {/* Support */}
         <div className="rounded-xl bg-base-100 border border-base-300 p-6 shadow-sm hover:-translate-y-1 transition">
           <div className="mx-auto mb-2 h-10 w-10 rounded-full bg-accent/15 flex items-center justify-center">
-            <span className="text-accent text-lg">⚙️</span>
+            <Image 
+              src="/support.png" 
+              alt="Support"
+              width={28}
+              height={28}
+              priority
+            />
           </div>
           <div className="flex items-baseline justify-center gap-1">
             <CountUp to={24} />
@@ -76,6 +99,7 @@ export default function StatsStrip() {
           </div>
           <p className="text-base-content/70">Support</p>
         </div>
+
       </div>
     </section>
   );

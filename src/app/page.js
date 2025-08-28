@@ -11,10 +11,10 @@ export default function HomePage() {
       <section className="max-w-5xl mx-auto px-4 py-16">
         <h1 className="text-4xl font-bold mb-3">Welcome to MyShop</h1>
         <p className="mb-6 text-base-content/70">
-          Browse our products, and after logging in, manage your own.
+          Browse our products, and after logging in, you will be able to add your own.
         </p>
         <div className="flex gap-3">
-          <Link href="/products" className="text-black border-2 border-black px-2 py-2">
+          <Link href="/products" className="btn btn-outline border-primary text-primary hover:bg-primary hover:text-white px-2 py-2">
             View Products
           </Link>
         
